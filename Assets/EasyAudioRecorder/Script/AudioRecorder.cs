@@ -67,7 +67,7 @@ namespace akr.Unity.Audio
             currentFileStream.WriteBytes(new byte[WaveHeaderSize]);
 
             var microphoneBuffer = new float[MicrophoneLengthSec * samplingFrequency];
-            var microphoneAudioClip = Microphone.Start(micDeviceName, false, MicrophoneLengthSec, samplingFrequency);
+            var microphoneAudioClip = Microphone.Start(micDeviceName, true, MicrophoneLengthSec, samplingFrequency);
             int writeHead = 0;
             int writePosition;
 
@@ -93,17 +93,17 @@ namespace akr.Unity.Audio
             Debug.Log("Audio Record End " + filePath);
         }
 
-        private void WriteWaveBuffer(FileStream fileStream, int _head, int _position, float[] buffer, AudioClip audioClip)
+        private void WriteWaveBuffer(FileStream fileStream, int head, int position, float[] buffer, AudioClip audioClip)
         {
             audioClip.GetData(buffer, 0);
 
-            for (int i = _head; i < _position && i < buffer.Length; i++)
+            for (int i = head; i < position || (head > position && i < buffer.Length); i++)
             {
                 fileStream.WriteBytes((short)(buffer[i] * short.MaxValue));
             }
-            if (_head > _position)
+            if (head > position)
             {
-                for (int i = 0; i < _position; i++)
+                for (int i = 0; i < position; i++)
                 {
                     fileStream.WriteBytes((short)(buffer[i] * short.MaxValue));
                 }
